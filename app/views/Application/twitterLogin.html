@@ -1,0 +1,35 @@
+#{extends 'main.html' /}
+#{set title:'Home' /}
+<span id="login"></span>
+<p id="linkblock" style="display: none;"><a href="@{Application.group()}">Go to your Group</a>&nbsp;<a href="#" onclick="twttr.anywhere.signOut(); document.location='@{Application.logout()}';">Log out</a> </p>
+<script type="text/javascript">
+
+    twttr.anywhere(function (T) {
+        var currentUser,
+                screenName,
+                profileImage,
+                profileImageTag;
+
+        var successFunc = function () {
+            currentUser = T.currentUser;
+            screenName = currentUser.data('screen_name');
+            name = currentUser.data('name');
+            profileImage = currentUser.data('profile_image_url');
+            profileImageTag = "<img src='" + profileImage + "'/>";
+            $('body').append("Logged in as " + profileImageTag + " " + name);
+            $.post('@{Application.setUserDetails()}', { "name": name, "profileUrl": profileImage });
+            $('#linkblock').show();
+        }
+
+        if (T.isConnected()) {
+            successFunc();
+        } else {
+            T("#login").connectButton();
+        }
+        T.bind("authComplete", function (e, user) {
+            document.location='@{Application.twitterLogin()}';
+//            $('#twitter-connect-placeholder').append("Logged in as " + profileImageTag + " " + screenName);
+        });
+    });
+
+</script>

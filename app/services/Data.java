@@ -28,6 +28,7 @@ public class Data {
     private static final String MESSAGE = "message";
     private static final String TEXT = "text";
     private static final String NAME = "name";
+    private static final String PROFILEURL = "profile_url";
 
     private static final String SET_USERS = "users";
     private static final String SET_GROUPS = "groups";
@@ -41,12 +42,14 @@ public class Data {
     
     public static void addUser(User user) {
         Redis.set(USER + ":" + user.id + ":" + NAME, user.name);
+        Redis.set(USER + ":" + user.id + ":" + PROFILEURL, user.profileImageUrl);
         Redis.sadd(SET_USERS, user.id);
     }
 
     public static User getUser(String id) {
         String name = Redis.get(USER + ":" + id + ":" + NAME);
-        return new User(id, name);
+        String profileUrl = Redis.get(USER + ":" + id + ":" + PROFILEURL);
+        return new User(id, name, profileUrl);
     }
 
     public static String addGroup() {
@@ -103,24 +106,4 @@ public class Data {
         return result;
     }
 
-    public static void main(String[] args) {
-        User user1 = new User("user1", "Billy Blogpost");
-        User user2 = new User("user2", "Jimmy Donut");
-        addUser(user1);
-        addUser(user2);
-        String groupId = addGroup();
-        addUserToGroup(user1.id, groupId);
-        addUserToGroup(user2.id, groupId);
-        postMessage(user1.id, groupId, "Billy Blogpost here with another weblog entry, thanks.");
-        postMessage(user2.id, groupId, "Couldn't be happier over here, all the best, Jimmy Donut.");
-        final Set<String> allGroups = getAllGroups();
-        for (String group : allGroups) {
-            System.out.println("Group: " + group);
-        }
-        final List<Message> messagesForGroup = getMessagesForGroup(groupId);
-        for (Message message : messagesForGroup) {
-            System.out.println("Message: " + message);
-        }
-        System.out.println("Group for Billy: " + getGroupForUser(user1.id));
-    }
 }

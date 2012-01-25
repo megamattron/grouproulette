@@ -3,11 +3,13 @@ package controllers;
 import models.Message;
 import models.User;
 import play.*;
+import play.libs.F;
 import play.modules.redis.Redis;
 import play.mvc.*;
 import services.Data;
 import util.AeSimpleSHA1;
 
+import java.util.HashMap;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -16,6 +18,49 @@ import java.util.List;
 import java.util.Set;
 
 public class Application extends Controller {
+
+    private static enum EventType {
+        JOIN,
+        LEAVE,
+        MESSAGE
+    }
+
+    private static class Event {
+        EventType type;
+        String userId;
+        String text;
+
+        private Event(EventType type, String userId, String text) {
+            this.type = type;
+            this.userId = userId;
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            switch (type) {
+                case JOIN:
+                    return "* " + userId + " joined.";
+                case LEAVE:
+                    return "* " + userId + " left.";
+                case MESSAGE:
+                    return userId + ": " + text;
+                default:
+                    return "";
+            }
+        }
+    }
+
+    private static HashMap<String, F.ArchivedEventStream<Event>> streams = new HashMap<String, F.ArchivedEventStream<Event>>();
+
+    private synchronized static F.ArchivedEventStream<Event> getGroupStream(String groupId) {
+        F.ArchivedEventStream<Event> stream = streams.get(groupId);
+        if (stream == null) {
+            stream = new F.ArchivedEventStream<Event>(100);
+            streams.put(groupId, stream);
+        }
+        return stream;
+    }
 
     private static final String USERNAME = "username";
 
@@ -26,11 +71,11 @@ public class Application extends Controller {
             render();
         } else {
             Logger.info("User has already logged in as " + username);
-            String groupForUser = Data.getGroupForUser(username);
-            if (groupForUser == null) {
+            String groupId = Data.getGroupForUser(username);
+            if (groupId == null) {
                 login(username);
             } else {
-                render("Application/group.html", username, groupForUser);
+                render("Application/group.html", username, groupId);
             }
         }
     }
@@ -84,6 +129,12 @@ public class Application extends Controller {
         render(username, groupId);
     }
 
+    public static void room() {
+        String username = getUsername();
+        String groupId = Data.getGroupForUser(username);
+        render(username, groupId);
+    }
+
     public static void getUsers() {
         UserInfo info = getUserInfo();
         Set<User> usersForGroup = Data.getUsersForGroup(info.groupId);
@@ -98,12 +149,20 @@ public class Application extends Controller {
 
     public static void postMessage(String text) {
         UserInfo info = getUserInfo();
-        String msgId = Data.postMessage(info.username, info.groupId, text);
+        String msgId = doMessage(text, info);
         renderJSON(msgId);
     }
 
-    public static void poll(String groupId, String lastMessageId) {
-        final List<Message> messages = Data.getMessagesForGroup(groupId);
+    private static String doMessage(String text, UserInfo info) {
+        String msgId = Data.postMessage(info.username, info.groupId, text);
+        Event event = new Event(EventType.MESSAGE, info.username, text);
+        getGroupStream(info.groupId).publish(event);
+        return msgId;
+    }
+
+    public static void poll(String lastMessageId) {
+        UserInfo info = getUserInfo();
+        final List<Message> messages = Data.getMessagesForGroup(info.groupId);
         final Iterator<Message> iterator = messages.iterator();
         long lastID = Long.parseLong(lastMessageId);
         // Remove all the ones we already saw
@@ -173,5 +232,32 @@ public class Application extends Controller {
             System.out.println("Message: " + message);
         }
         System.out.println("Group for Billy: " + Data.getGroupForUser(user1.id));
+    }
+
+    public static class Socket extends WebSocketController {
+
+        public static void join() {
+            String username = getUsername();
+            String groupId = Data.getGroupForUser(username);
+            final F.EventStream<Event> stream = getGroupStream(groupId).eventStream();
+            stream.publish(new Event(EventType.JOIN, username, ""));
+            while (inbound.isOpen()) {
+                F.Either<Http.WebSocketEvent, Event> e = await(F.Promise.waitEither(
+                        inbound.nextEvent(),
+                        stream.nextEvent()
+                ));
+                for (String userMessage : Http.WebSocketEvent.TextFrame.match(e._1)) {
+                    System.out.println("Received: '" + userMessage + "'.");
+                    doMessage(userMessage, new UserInfo(username, groupId));
+                }
+                for (Event event : F.Matcher.ClassOf(Event.class).match(e._2)) {
+                    outbound.send(event.toString());
+                }
+                for(Http.WebSocketClose closed: Http.WebSocketEvent.SocketClosed.match(e._1)) {
+                    stream.publish(new Event(EventType.LEAVE, username, ""));
+                }
+            }
+        }
+
     }
 }

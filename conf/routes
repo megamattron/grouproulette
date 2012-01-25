@@ -5,6 +5,10 @@
 # Home page
 GET     /                                       Application.index
 
+# Sockets
+GET      /room                                   Application.room
+WS      /room/socket                            Application.Socket.join
+
 # Ignore favicon requests
 GET     /favicon.ico                            404
 

@@ -1,0 +1,45 @@
+#{extends 'main.html' /}
+#{set title:'Socket!' /}
+<h1>Hello ${username} you are in chatroom "${groupId}" <a href="@{Application.index()}">Leave the room</a></h1>
+<div id="thread">
+    
+</div>
+<div id="newMessage">
+    <input type="text" id="message" autocomplete="off">
+    <input type="submit" value="send" id="send">
+</div>
+
+<script type="text/javascript">
+
+    // Create a socket
+    var socket = new WebSocket('@@{Application.Socket.join()}');
+
+    socket.onopen = function() {
+        ws.send("Blammo!");
+    };
+
+    // Display a message
+    var display = function(event) {
+        $('#thread').append(tmpl('message_tmpl', {event: event}));
+        $('#thread').scrollTo('max')
+    }
+
+    // Message received on the socket
+    socket.onmessage = function(event) {
+        $('#thread').append('<p>' + event.data + '</p>');
+    }
+
+    $('#send').click(function(e) {
+        var message = $('#message').val()
+        $('#message').val('')
+        socket.send(message)
+    });
+
+    $('#message').keypress(function(e) {
+        if(e.charCode == 13 || e.keyCode == 13) {
+            $('#send').click()
+            e.preventDefault()
+        }
+    })
+
+</script>

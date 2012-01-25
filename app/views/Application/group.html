@@ -55,6 +55,7 @@
 (function($){
 
 var getMessages = function () {
+    *{ $.getJSON("@{Application.poll(lastMessageId)}", }*
 	$.getJSON("@{Application.getMessages()}",
 		function (data){
 			$(".message-board-container").html("");

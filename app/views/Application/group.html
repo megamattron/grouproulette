@@ -74,9 +74,11 @@ var getUsers = function () {
 var formatUsers = function (data) {
 	$.each(data, function(e){
 		var groupMember = $("<div class='aside group-member' />");
-		var dataName = data[e].id;
+		var dataName = data[e].name;
+		var dataImgSrc = data[e].profileImageUrl;
 
 		groupMember.append(
+			"<div class='fb-img'><img src=" + dataImgSrc + "></div>",
 			"<span class='user-profile-link'><a href='#'>" + dataName + "</a></span>"
 		);
 

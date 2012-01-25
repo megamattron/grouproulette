@@ -26,6 +26,7 @@ public class Data {
     private static final String GROUP = "group";
     private static final String MESSAGE = "message";
     private static final String TEXT = "text";
+    private static final String NAME = "name";
 
     private static final String SET_USERS = "users";
     private static final String SET_GROUPS = "groups";
@@ -33,13 +34,17 @@ public class Data {
 
     private static final String LIST_MESSAGES = "messages";
 
+    private static void delete(String key) {
+        Redis.del(new String[]{key});
+    }
+    
     public static void addUser(User user) {
-        Redis.set(USER + ":" + user.id, user.name);
+        Redis.set(USER + ":" + user.id + ":" + NAME, user.name);
         Redis.sadd(SET_USERS, user.id);
     }
 
     public static User getUser(String id) {
-        String name = Redis.get(USER + ":" + id);
+        String name = Redis.get(USER + ":" + id + ":" + NAME);
         return new User(id, name);
     }
 
@@ -55,10 +60,16 @@ public class Data {
     
     public static void addUserToGroup(String userId, String groupId) {
         Redis.sadd(GROUP + ":" + groupId + ":" + SET_MEMBERS, userId);
+        Redis.set(USER + ":" + userId + ":" + GROUP, groupId);        
+    }
+    
+    public static String getGroupForUser(String userId) {
+        return Redis.get(USER + ":" + userId + ":" + GROUP);
     }
 
     public static void removeUserFromGroup(String userId, String groupId) {
         Redis.srem(GROUP + ":" + groupId + ":" + SET_MEMBERS, userId);
+        delete(USER + ":" + userId + ":" + GROUP);
     }
     
     public static Set<String> getUsersForGroup(String groupId) {
@@ -104,5 +115,6 @@ public class Data {
         for (Message message : messagesForGroup) {
             System.out.println("Message: " + message);
         }
+        System.out.println("Group for Billy: " + getGroupForUser(user1.id));
     }
 }

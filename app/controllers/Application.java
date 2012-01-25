@@ -77,5 +77,6 @@ public class Application extends Controller {
         for (Message message : messagesForGroup) {
             System.out.println("Message: " + message);
         }
+        System.out.println("Group for Billy: " + Data.getGroupForUser(user1.id));
     }
 }

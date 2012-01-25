@@ -5,16 +5,17 @@ package models;
  */
 public class Message {
     
+    public String id;
     public String userId;
     public String text;
 
-    public Message(String userId, String text) {
+    public Message(String id, String userId, String text) {
         this.userId = userId;
         this.text = text;
     }
 
     @Override
     public String toString() {
-        return "[" + userId + "]: " + text;
+        return "(" + id + ") [" + userId + "]: " + text;
     }
 }

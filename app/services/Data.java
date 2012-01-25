@@ -91,7 +91,7 @@ public class Data {
         for (String key : list) {
             String userId = Redis.get(MESSAGE + ":" + key + ":" + USER);
             String text = Redis.get(MESSAGE + ":" + key + ":" + TEXT);
-            Message m = new Message(userId, text);
+            Message m = new Message(key, userId, text);
             result.add(m);
         }
         return result;

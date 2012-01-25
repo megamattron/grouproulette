@@ -7,6 +7,7 @@ import play.modules.redis.Redis;
 import play.mvc.*;
 import services.Data;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -55,8 +56,18 @@ public class Application extends Controller {
     }
     
     public static void poll(String groupId, String lastMessageId) {
-        // todo - get the group messages and see if there is anything after the message ID. If so, then JSON it.
-        renderJSON(null);
+        final List<Message> messages = Data.getMessagesForGroup(groupId);
+        final Iterator<Message> iterator = messages.iterator();
+        long lastID = Long.parseLong(lastMessageId);
+        // Remove all the ones we already saw
+        while (iterator.hasNext()) {
+            Message message = iterator.next();
+            long id = Long.parseLong(message.id);
+            if (id <= lastID) {
+                iterator.remove();
+            }
+        }
+        renderJSON(messages);
     }
 
     public static void makeTestData() {

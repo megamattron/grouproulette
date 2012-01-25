@@ -19,16 +19,36 @@ public class Application extends Controller {
         // todo - render login page if no cookie, main page if there is a cookie
         String username = getUsername();
         if (username == null) {
-
+            render();
         } else {
             Logger.info("User has already logged in as " + username);
+            String groupForUser = Data.getGroupForUser(username);
+            if (groupForUser == null) {
+                login(username);
+            } else {
+                render("Application/group.html", username, groupForUser);
+            }
         }
-        String value = Redis.get("blam");
-        render(value);
+    }
+    
+    private static class UserInfo {
+        String username;
+        String groupId;
+
+        private UserInfo(String username, String groupId) {
+            this.username = username;
+            this.groupId = groupId;
+        }
     }
 
     private static String getUsername() {
         return session.get(USERNAME);
+    }
+    
+    private static UserInfo getUserInfo() {
+        String username = getUsername();
+        String groupForUser = Data.getGroupForUser(username);
+        return new UserInfo(username, groupForUser);
     }
 
     public static void login(String username) {
@@ -37,22 +57,31 @@ public class Application extends Controller {
         String groupId = "the group";
 
         Data.addUserToGroup(username, groupId);
+        group();
+    }
+    
+    public static void group() {
+        String username = getUsername();
+        String groupId = Data.getGroupForUser(username);
         render(username, groupId);
     }
 
-    public static void getUsers(String groupId) {
-//        List<User> usersForGroup = Data.getUsersForGroup(groupId);
-//        renderJSON(usersForGroup);
+    public static void getUsers() {
+        UserInfo info = getUserInfo();
+        Set<User> usersForGroup = Data.getUsersForGroup(info.groupId);
+        renderJSON(usersForGroup);
     }
 
-    public static void getMessages(String groupId) {
-        List<Message> messagesForGroup = Data.getMessagesForGroup(groupId);
+    public static void getMessages() {
+        UserInfo info = getUserInfo();
+        List<Message> messagesForGroup = Data.getMessagesForGroup(info.groupId);
         renderJSON(messagesForGroup);
     }
 
-    public static void postMessage(String groupId, String text) {
-        // todo - get username from cookie (or should it be a request param?), store
-        renderJSON(null);
+    public static void postMessage(String text) {
+        UserInfo info = getUserInfo();
+        String msgId = Data.postMessage(info.username, info.groupId, text);
+        renderJSON(msgId);
     }
     
     public static void poll(String groupId, String lastMessageId) {

@@ -5,6 +5,7 @@ import models.User;
 import play.modules.redis.Redis;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -72,8 +73,13 @@ public class Data {
         delete(USER + ":" + userId + ":" + GROUP);
     }
     
-    public static Set<String> getUsersForGroup(String groupId) {
-        return Redis.smembers(GROUP + ":" + groupId + ":" + SET_MEMBERS);
+    public static Set<User> getUsersForGroup(String groupId) {
+        Set<String> userIds = Redis.smembers(GROUP + ":" + groupId + ":" + SET_MEMBERS);
+        Set<User> users = new HashSet<User>();
+        for (String userId : userIds) {
+            users.add(getUser(userId));
+        }
+        return users;
     }
     
     public static String postMessage(String userId, String groupId, String text) {

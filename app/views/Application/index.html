@@ -1,4 +1,8 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
-<h1>${value}</h1>
-#{welcome /}
+<h1>Welcome and login dude.</h1>
+<form action="@{Application.login()}">
+    Username<br/>
+    <input type="text" name="username"/>
+    <input type="submit"/>
+</form>

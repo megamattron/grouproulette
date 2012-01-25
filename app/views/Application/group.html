@@ -1,3 +1,126 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
 <h1>Hello ${username} you are in group "${groupId}"</h1>
+
+<div class="container message-board">      
+<div class="content-wrapper span18">
+<div class="row">
+  <div class="span4">
+    <div id="user_field" class="aside">
+      <div class="fb-img"><img></div>
+      <span class="user-profile-link"><a href="#">${username}</a></span>
+    </div>          
+    <div id="group_field" class="aside">
+      <!-- <div class="group-member">
+        <div class="fb-img"><img src="images/demo-portrait.jpg"></div>
+        <span class="user-profile-link"><a href="#">User in group.</a></span>
+      </div>
+      <div class="group-member">
+        <div class="fb-img"><img src="images/demo-portrait.jpg"></div>
+        <span class="user-profile-link"><a href="#">User in group.</a></span>
+      </div>
+      <div class="group-member">
+        <div class="fb-img"><img src="images/demo-portrait.jpg"></div>
+        <span class="user-profile-link"><a href="#">User in group.</a></span>
+      </div>
+      <div class="group-member">
+        <div class="fb-img"><img src="images/demo-portrait.jpg"></div>
+        <span class="user-profile-link"><a href="#">User in group.</a></span>
+      </div> -->
+    </div> 
+  </div> 
+
+  <div class="span14">
+  	<div class="post-message-container">
+  		<form action="/application/postmessage" id="post_message">
+  			<input type="text" class="xxlarge" name="text" placeholder="Post a message...">
+  			<input type="submit" class="btn primary" value="Post">
+  		</form>
+  	</div>
+    <div class="message-board-container">
+      <!-- <div class="post">
+        <div class="fb-img"><img src="images/demo-portrait.jpg"></div>
+        <div class="user-profile-link"><a href="#">This guy posted this.</a></div>
+        <div class="post-content">
+          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+        </div>
+      </div> -->
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<script type="text/javascript">
+
+(function($){
+
+var getMessages = function () {
+	$.getJSON("http://localhost:9000/application/getmessages", 
+		function (data){
+			formatMessages(data);
+		}
+	);
+};
+
+var getUsers = function () {
+		$.getJSON("http://localhost:9000/application/getusers", 
+		function (data){
+			formatUsers(data);
+		}
+	);
+};
+
+var formatUsers = function (data) {
+	$.each(data, function(e){
+		var groupMember = $("<div class='aside group-member' />");
+		var dataName = data[e].id;
+
+		groupMember.append(
+			"<span class='user-profile-link'><a href='#'>" + dataName + "</a></span>"
+		);
+
+		$("#group_field").append(groupMember);
+
+	});	
+};
+
+var formatMessages = function (data) {
+	$.each(data, function(e){
+		var thisPost = $("<div class='post' />");
+		var dataUserId = data[e].userId;
+		var dataText = data[e].text;
+
+		thisPost.append(
+			"<div class='user-profile-link'><a href='#'>" + dataUserId + "</a></div>",
+			"<div class='post-content'>" + dataText + "</div>"
+		);
+
+		$(".message-board-container").prepend(thisPost);
+	});	
+};
+
+$("#post_message").submit(function(e){
+	e.preventDefault();
+
+	var messageForm = $(this);
+	var messageText = $("input[name='text']").val();
+	var url = messageForm.attr("action");
+
+	$.post(url, { text : messageText },
+		function (data){
+			$(".message-board-container").html("");
+
+			getMessages();
+			$("input[name='text']").val("");
+		}
+	);
+
+});
+
+getUsers();	
+getMessages();
+	
+}( jQuery ));
+
+</script>

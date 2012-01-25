@@ -3,3 +3,73 @@ Group Roulette Styles
 ian.ainley 2012
 */
 
+
+.content-wrapper {
+	margin-top:40px;
+
+}
+
+/* Login */
+.container.landing-page {
+	position:relative;
+	top:200px;
+}
+
+#login_form {
+	margin-top:40px;	
+}
+
+#login_form > label >input {
+	display:inline;
+}
+
+/* Message Board */
+.aside {
+	border:1px solid #CCC;
+	border-radius:5px;
+	background-color:#FAFAFA;
+	padding:4px;
+}
+
+#user_field {
+	display:inline-block;
+}
+
+#user_field .fb-img {
+	display:block;
+	padding:2px;
+	border:1px solid #CCC;
+}
+
+#group_field {
+	margin-top:20px;
+	display:block;
+	padding:10px;
+}
+
+#group_field .group-member {
+	margin-top:10px;
+}
+
+#group_field .group-member:first-child {
+	margin-top:0px;
+}
+
+#group_field .fb-img {
+	padding:2px;
+	border:1px solid #CCC;
+	display:inline-block;
+}
+
+.message-board-container {
+	border:1px solid #CCC;
+	padding:15px 15px;
+	max-height:600px;
+	overflow:scroll;
+}
+
+.post {
+	margin-bottom:10px;
+	padding-bottom:10px;
+	border-bottom:1px solid #EAEAEA;
+}

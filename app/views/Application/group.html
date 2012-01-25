@@ -1,6 +1,5 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
-<h1>Hello ${username} you are in group "${groupId}"</h1>
 
 <div class="container message-board">      
 <div class="content-wrapper span18">
@@ -32,7 +31,7 @@
 
   <div class="span14">
   	<div class="post-message-container">
-  		<form action="/application/postmessage" id="post_message">
+  		<form action="@{Application.postMessage()}" id="post_message">
   			<input type="text" class="xxlarge" name="text" placeholder="Post a message...">
   			<input type="submit" class="btn primary" value="Post">
   		</form>
@@ -56,7 +55,7 @@
 (function($){
 
 var getMessages = function () {
-	$.getJSON("http://localhost:9000/application/getmessages", 
+	$.getJSON("@{Application.getMessages()}",
 		function (data){
 			$(".message-board-container").html("");
 			formatMessages(data);
@@ -65,7 +64,7 @@ var getMessages = function () {
 };
 
 var getUsers = function () {
-		$.getJSON("http://localhost:9000/application/getusers", 
+		$.getJSON("@{Application.getUsers()}",
 		function (data){
 			formatUsers(data);
 		}

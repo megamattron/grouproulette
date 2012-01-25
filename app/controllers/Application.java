@@ -72,7 +72,7 @@ public class Application extends Controller {
 
     public static void makeTestData() {
         User user1 = new User("user1", "Billy Blogpost");
-        User user2 = new User("user1", "Jimmy Donut");
+        User user2 = new User("user2", "Jimmy Donut");
         Data.addUser(user1);
         Data.addUser(user2);
         String groupId = Data.addGroup();

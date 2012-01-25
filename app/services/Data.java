@@ -99,7 +99,7 @@ public class Data {
 
     public static void main(String[] args) {
         User user1 = new User("user1", "Billy Blogpost");
-        User user2 = new User("user1", "Jimmy Donut");
+        User user2 = new User("user2", "Jimmy Donut");
         addUser(user1);
         addUser(user2);
         String groupId = addGroup();

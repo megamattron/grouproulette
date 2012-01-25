@@ -93,6 +93,8 @@ var formatMessages = function (data) {
 		var thisPost = $("<div class='post' />");
 		var dataUserId = data[e].userId;
 		var dataText = data[e].text;
+        // JW - to get the message ID:
+        // var dataMessageId = data[e].id;
 
 		thisPost.append(
 			"<div class='user-profile-link'><a href='#'>" + dataUserId + "</a></div>",

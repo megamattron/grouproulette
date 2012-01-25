@@ -58,6 +58,7 @@
 var getMessages = function () {
 	$.getJSON("http://localhost:9000/application/getmessages", 
 		function (data){
+			$(".message-board-container").html("");
 			formatMessages(data);
 		}
 	);
@@ -111,8 +112,6 @@ $("#post_message").submit(function(e){
 
 	$.post(url, { text : messageText },
 		function (data){
-			$(".message-board-container").html("");
-
 			getMessages();
 			$("input[name='text']").val("");
 		}
@@ -122,6 +121,8 @@ $("#post_message").submit(function(e){
 
 getUsers();	
 getMessages();
+
+setInterval(getMessages, 1000);
 	
 }( jQuery ));
 

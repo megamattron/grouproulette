@@ -1,29 +1,17 @@
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-<title>FB Group Roulette</title>
-<link rel="stylesheet" href="stylesheets/resets.css" type="text/css">
-<link rel="stylesheet" href="stylesheets/bootstrap.css" type="text/css">
-<link rel="stylesheet" href="stylesheets/style.css" type="text/css">
-
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="robots" content="noindex, nofollow">
-
-<script src="http://code.jquery.com/jquery-1.7.1.js"></script>
-<!--[if lt IE 9]>
-<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-<![endif]-->
-</head>
+<html>
+    <head>
+      <title>My Facebook Login Page</title>
+    </head>
     <body>
       <div id="fb-root"></div>
-      <script type="text/javascript">
+      <script>
         window.fbAsyncInit = function() {
           FB.init({
             appId      : '215053178587597',
             status     : true, 
             cookie     : true,
             xfbml      : true,
-            oauth      : true
+            oauth      : true,
           });
         };
         (function(d){
@@ -33,13 +21,6 @@
            d.getElementsByTagName('head')[0].appendChild(js);
          }(document));
       </script>
-
-      <div class="container">
-        <div class="row">
-          <div  id="login_landing" class="span12">
-            <div class="fb-login-button">Login with Facebook</div>
-          </div>
-        </div>
-      </div>
+      <div class="fb-login-button">Login with Facebook</div>
     </body>
-</html>
+ </html>
